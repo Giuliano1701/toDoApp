@@ -188,7 +188,6 @@ async function loadTodos() {
                     const updatedTask = tr.querySelector('.edit-task-input').value;
                     const updatedDueDate = tr.querySelector('.edit-due-date-input').value;
                     const updatedPriority = tr.querySelector('.edit-priority-select').value;
-                    const updatedStatus = tr.querySelector('.edit-status-select').value;
 
                     fetch(`${TODO_API_URL}/todos/${todo.id}`, {
                         method: 'PUT',
@@ -199,8 +198,7 @@ async function loadTodos() {
                         body: JSON.stringify({
                             task: updatedTask,
                             due_date: updatedDueDate,
-                            priority: updatedPriority,
-                            status: updatedStatus
+                            priority: updatedPriority
                         })
                     }).then(response => {
                         if (response.ok) {
@@ -220,12 +218,7 @@ async function loadTodos() {
                             <option value="Medium" ${todo.priority === 'Medium' ? 'selected' : ''}>Medium</option>
                             <option value="High" ${todo.priority === 'High' ? 'selected' : ''}>High</option>
                         </select>`;
-                    statusText.innerHTML = `
-                        <select class="edit-status-select">
-                            <option value="Not Started" ${todo.status === 'Not Started' ? 'selected' : ''}>Not Started</option>
-                            <option value="In Progress" ${todo.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
-                            <option value="Completed" ${todo.status === 'Completed' ? 'selected' : ''}>Completed</option>
-                        </select>`;
+
 
                     editBtn.textContent = 'Save';
                 }

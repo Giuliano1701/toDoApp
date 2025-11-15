@@ -1,0 +1,95 @@
+Container Name
+
+Role
+
+Technology
+
+Exposure (Internal/External Port)
+
+client
+
+Front-end web application.
+
+Nginx (static files)
+
+External (8080)
+
+auth_service
+
+Handles user authentication (Registration, Login).
+
+Python / Flask
+
+Internal (5000)
+
+todo_api
+
+Handles To-Do list business logic (CRUD operations).
+
+Python / Flask
+
+External (5001)
+
+db
+
+Persistent storage for all To-Do entries.
+
+PostgreSQL
+
+Internal (5432)
+
+Communication Flow
+
+The Client communicates with the Auth Service (for login/register) and the To-Do API (for managing tasks).
+
+The To-Do API must communicate with the Auth Service to validate the user token before executing any CRUD operation.
+
+The To-Do API uses the DB (PostgreSQL) as its permanent data store.
+
+2. Functional Requirements (User Stories)
+
+The application must support the following core features:
+
+A. Authentication
+
+User Registration: A user must be able to register a new account by providing a unique username and password.
+
+User Login: A registered user must be able to log in with their credentials and receive an authentication token.
+
+Session Management: The client must securely store the token and send it with every request to the To-Do API.
+
+Logout: A user must be able to end their session, which clears the local token storage.
+
+B. To-Do Management (CRUD)
+
+Create (Add): An authenticated user must be able to add a new task.
+
+Read (View): An authenticated user must only be able to view the tasks associated with their own user_id.
+
+Update (Toggle Completion): An authenticated user must be able to mark a task as completed or not completed.
+
+Delete: An authenticated user must be able to permanently remove a task.
+
+3. Technical Requirements
+
+Isolation: Each service must run in its own Docker container, defined by its own Dockerfile where applicable.
+
+Orchestration: Docker Compose must be used to build, link, and run all four containers simultaneously.
+
+Authentication Mechanism (Token Validation):
+
+The auth_service must generate a simple, time-stamped token upon successful login.
+
+The todo_api must implement middleware that checks for the Authorization: Bearer <token> header on all protected routes.
+
+The todo_api must internally call the auth_service's /validate endpoint with the token. Only if the validation returns 200 OK should the request be allowed to proceed.
+
+Authorization (Data Isolation):
+
+The todo_api must use the validated user_id (obtained from the auth_service response) to filter database operations, ensuring a user can only query, update, or delete their own data.
+
+Data Persistence: The PostgreSQL container must use a Docker volume (todo_data) to ensure that data is not lost when the container is stopped or restarted.
+
+Language Consistency: The back-end services (auth_service and todo_api) must be implemented using Python (Flask).
+
+Dependency Management: Each Python service must define its dependencies using a requirements.txt file.

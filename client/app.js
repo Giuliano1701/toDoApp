@@ -17,255 +17,317 @@ const todoInput = document.getElementById('todo-input');
 const todoDueDateInput = document.getElementById('todo-due-date');
 const todoPriorityInput = document.getElementById('todo-priority');
 const todoList = document.getElementById('todo-list');
+const emptyState = document.getElementById('empty-state');
 
-const currentPath = window.location.pathname;
-const clientBasePath = currentPath.startsWith('/client1/') ? '/client1' : '/client2';
+// Use relative paths for Nginx proxy
+const AUTH_API_URL = '/api/auth';
+const TODO_API_URL = '/api/todos';
 
-const AUTH_API_URL = `${clientBasePath}/api/auth`;
-const TODO_API_URL = `${clientBasePath}/api/todos`;
+function showSection(sectionId) {
+    [authContainer, registerContainer, todoContainer].forEach(el => el.classList.add('hidden'));
+    document.getElementById(sectionId).classList.remove('hidden');
+    
+    if (sectionId === 'todo-container') {
+        logoutBtn.classList.remove('hidden');
+    } else {
+        logoutBtn.classList.add('hidden');
+    }
+}
 
-showRegister.addEventListener('click', () => {
-    authContainer.style.display = 'none';
-    registerContainer.style.display = 'block';
+showRegister.addEventListener('click', (e) => {
+    e.preventDefault();
+    showSection('register-container');
 });
 
-showLogin.addEventListener('click', () => {
-    registerContainer.style.display = 'none';
-    authContainer.style.display = 'block';
+showLogin.addEventListener('click', (e) => {
+    e.preventDefault();
+    showSection('auth-container');
 });
 
-loginBtn.addEventListener('click', async () => {
+// Prevent form submissions from reloading page
+document.getElementById('login-form').addEventListener('submit', (e) => e.preventDefault());
+document.getElementById('register-form').addEventListener('submit', (e) => e.preventDefault());
+
+loginBtn.addEventListener('click', async (e) => {
+    e.preventDefault(); // Ensure form doesn't submit
     const username = loginUsernameInput.value;
     const password = loginPasswordInput.value;
 
-    const response = await fetch(`${AUTH_API_URL}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-    }).catch(error => {
-        console.error('Login fetch error:', error);
-        alert('Network error during login. Please check your connection.');
-        return null; // Return null to prevent further processing
-    });
+    if (!username || !password) {
+        alert('Please enter both username and password');
+        return;
+    }
 
-    if (!response) return; // If fetch failed, stop here
+    try {
+        const response = await fetch(`${AUTH_API_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
 
-    if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('token', data.token);
-        authContainer.style.display = 'none';
-        registerContainer.style.display = 'none';
-        todoContainer.style.display = 'block';
-        loadTodos();
-    } else {
-        const errorData = await response.json();
-        console.error('Login failed:', errorData);
-        alert(`Login failed: ${errorData.message || response.statusText}`);
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('token', data.token);
+            showSection('todo-container');
+            loadTodos();
+        } else {
+            const errorData = await response.json();
+            alert(`Login failed: ${errorData.message || 'Unknown error'}`);
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        alert('Network error. Please try again.');
     }
 });
 
-registerBtn.addEventListener('click', async () => {
+registerBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
     const username = registerUsernameInput.value;
     const password = registerPasswordInput.value;
 
-    const response = await fetch(`${AUTH_API_URL}/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-    });
+    if (!username || !password) {
+        alert('Please enter both username and password');
+        return;
+    }
 
-    if (response.ok) {
-        alert('Registration successful! Please login.');
-        registerContainer.style.display = 'none';
-        authContainer.style.display = 'block';
-    } else {
-        alert('Registration failed');
+    try {
+        const response = await fetch(`${AUTH_API_URL}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (response.ok) {
+            alert('Registration successful! Please login.');
+            showSection('auth-container');
+        } else {
+            const errorData = await response.json();
+            alert(`Registration failed: ${errorData.message || 'Unknown error'}`);
+        }
+    } catch (error) {
+        console.error('Registration error:', error);
+        alert('Network error. Please try again.');
     }
 });
 
 logoutBtn.addEventListener('click', () => {
     localStorage.removeItem('token');
-    todoContainer.style.display = 'none';
-    authContainer.style.display = 'block';
-    todoList.innerHTML = '';
+    showSection('auth-container');
+    todoList.querySelector('tbody').innerHTML = '';
 });
 
 addTodoBtn.addEventListener('click', async () => {
     const task = todoInput.value;
     const due_date = todoDueDateInput.value;
     const priority = todoPriorityInput.value;
-    if (!task) return;
+    
+    if (!task) {
+        alert('Please enter a task');
+        return;
+    }
 
     const token = localStorage.getItem('token');
-    const response = await fetch(`${TODO_API_URL}/todos`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ task, due_date, priority })
-    });
+    try {
+        const response = await fetch(TODO_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ task, due_date, priority })
+        });
 
-    if (response.ok) {
-        todoInput.value = '';
-        todoDueDateInput.value = '';
-        todoPriorityInput.value = 'Medium';
-        loadTodos();
-    } else {
-        alert('Failed to add todo');
+        if (response.ok) {
+            todoInput.value = '';
+            todoDueDateInput.value = '';
+            todoPriorityInput.value = 'Medium';
+            loadTodos();
+        } else {
+            alert('Failed to add todo');
+        }
+    } catch (error) {
+        console.error('Add todo error:', error);
     }
 });
 
-// Helper function to format date for input type="date" (YYYY-MM-DD)
 function formatDateForInput(dateString) {
     if (!dateString) return '';
     const date = new Date(dateString);
-    // Check if the date is valid
-    if (isNaN(date.getTime())) {
-        // Attempt to parse DD.MM.YYYY format
-        const parts = dateString.split('.');
-        if (parts.length === 3) {
-            const day = parseInt(parts[0], 10);
-            const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
-            const year = parseInt(parts[2], 10);
-            const d = new Date(year, month, day);
-            if (!isNaN(d.getTime())) {
-                return d.toISOString().split('T')[0];
-            }
-        }
-        return ''; // Return empty if date is invalid or unparseable
-    }
+    if (isNaN(date.getTime())) return '';
     return date.toISOString().split('T')[0];
 }
 
 async function loadTodos() {
     const token = localStorage.getItem('token');
     if (!token) {
-        todoContainer.style.display = 'none';
-        authContainer.style.display = 'block';
+        showSection('auth-container');
         return;
     }
 
-    const response = await fetch(`${TODO_API_URL}/todos`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
-
-    if (response.ok) {
-        const todos = await response.json();
-        todoList.querySelector('tbody').innerHTML = ''; // Clear existing table rows
-        todos.forEach(todo => {
-            const tr = document.createElement('tr');
-            tr.dataset.id = todo.id;
-            tr.innerHTML = `
-                <td><span class="task-text">${todo.task}</span></td>
-                <td><span class="due-date-text">${todo.due_date ? new Date(todo.due_date).toLocaleDateString() : 'No Due Date'}</span></td>
-                <td><span class="priority-text">Priority: ${todo.priority}</span></td>
-                <td><input type="checkbox" class="todo-completed-checkbox" ${todo.completed ? 'checked' : ''}></td>
-                <td>
-                    <button class="edit-btn">Edit</button>
-                    <button class="delete-btn">Delete</button>
-                </td>
-            `;
-
-            if (todo.completed) {
-                tr.classList.add('completed');
+    try {
+        const response = await fetch(TODO_API_URL, {
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-
-            const taskText = tr.querySelector('.task-text');
-            const dueDateText = tr.querySelector('.due-date-text');
-            const priorityText = tr.querySelector('.priority-text');
-            const editBtn = tr.querySelector('.edit-btn');
-            const deleteBtn = tr.querySelector('.delete-btn');
-
-
-
-            editBtn.addEventListener('click', () => {
-                const isEditing = tr.classList.contains('editing');
-                if (isEditing) {
-                    // Save changes
-                    const updatedTask = tr.querySelector('.edit-task-input').value;
-                    const updatedDueDate = tr.querySelector('.edit-due-date-input').value;
-                    const updatedPriority = tr.querySelector('.edit-priority-select').value;
-
-                    fetch(`${TODO_API_URL}/todos/${todo.id}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                            task: updatedTask,
-                            due_date: updatedDueDate,
-                            priority: updatedPriority
-                        })
-                    }).then(response => {
-                        if (response.ok) {
-                            loadTodos();
-                        } else {
-                            alert('Failed to update todo');
-                        }
-                    });
-                } else {
-                    // Enter edit mode
-                    tr.classList.add('editing');
-                    taskText.innerHTML = `<input type="text" class="edit-task-input" value="${todo.task}">`;
-                    dueDateText.innerHTML = `<input type="date" class="edit-due-date-input" value="${formatDateForInput(todo.due_date)}">`;
-                    priorityText.innerHTML = `
-                        <select class="edit-priority-select">
-                            <option value="Low" ${todo.priority === 'Low' ? 'selected' : ''}>Low</option>
-                            <option value="Medium" ${todo.priority === 'Medium' ? 'selected' : ''}>Medium</option>
-                            <option value="High" ${todo.priority === 'High' ? 'selected' : ''}>High</option>
-                        </select>`;
-
-
-                    editBtn.textContent = 'Save';
-                }
-            });
-
-            deleteBtn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const deleteResponse = await fetch(`${TODO_API_URL}/todos/${todo.id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                if (deleteResponse.ok) {
-                    loadTodos();
-                } else {
-                    alert('Failed to delete todo');
-                }
-            });
-
-            const completedCheckbox = tr.querySelector('.todo-completed-checkbox');
-            completedCheckbox.addEventListener('change', async (e) => {
-                const updateResponse = await fetch(`${TODO_API_URL}/todos/${todo.id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ completed: e.target.checked })
-                });
-                if (updateResponse.ok) {
-                    loadTodos();
-                } else {
-                    alert('Failed to update todo status');
-                }
-            });
-            todoList.querySelector('tbody').appendChild(tr);
         });
-        authContainer.style.display = 'none';
-        registerContainer.style.display = 'none';
-        todoContainer.style.display = 'block';
+
+        if (response.ok) {
+            const todos = await response.json();
+            const tbody = todoList.querySelector('tbody');
+            tbody.innerHTML = '';
+            
+            if (todos.length === 0) {
+                emptyState.classList.remove('hidden');
+                todoList.classList.add('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                todoList.classList.remove('hidden');
+                
+                todos.forEach(todo => {
+                    const tr = document.createElement('tr');
+                    tr.dataset.id = todo.id;
+                    if (todo.completed) tr.classList.add('completed');
+                    
+                    tr.innerHTML = `
+                        <td><span class="task-text">${todo.task}</span></td>
+                        <td><span class="due-date-text">${todo.due_date ? new Date(todo.due_date).toLocaleDateString() : '-'}</span></td>
+                        <td><span class="priority-badge priority-${todo.priority}">${todo.priority}</span></td>
+                        <td>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" class="todo-completed-checkbox" ${todo.completed ? 'checked' : ''}>
+                            </div>
+                        </td>
+                        <td class="actions-cell">
+                            <button class="btn btn-secondary edit-btn">Edit</button>
+                            <button class="btn btn-danger delete-btn">Delete</button>
+                        </td>
+                    `;
+
+                    // Event Listeners
+                    const editBtn = tr.querySelector('.edit-btn');
+                    const deleteBtn = tr.querySelector('.delete-btn');
+                    const checkbox = tr.querySelector('.todo-completed-checkbox');
+
+                    editBtn.addEventListener('click', () => handleEdit(tr, todo, token));
+                    deleteBtn.addEventListener('click', () => handleDelete(todo.id, token));
+                    checkbox.addEventListener('change', (e) => handleToggle(todo.id, e.target.checked, token));
+
+                    tbody.appendChild(tr);
+                });
+            }
+        } else {
+            localStorage.removeItem('token');
+            showSection('auth-container');
+        }
+    } catch (error) {
+        console.error('Load todos error:', error);
+    }
+}
+
+async function handleEdit(tr, todo, token) {
+    const isEditing = tr.classList.contains('editing');
+    const taskText = tr.querySelector('.task-text');
+    const dueDateText = tr.querySelector('.due-date-text');
+    const priorityBadge = tr.querySelector('.priority-badge'); // We replace the badge parent or content
+    const editBtn = tr.querySelector('.edit-btn');
+
+    if (isEditing) {
+        // Save
+        const updatedTask = tr.querySelector('.edit-task-input').value;
+        const updatedDueDate = tr.querySelector('.edit-due-date-input').value;
+        const updatedPriority = tr.querySelector('.edit-priority-select').value;
+
+        try {
+            const response = await fetch(`${TODO_API_URL}/${todo.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    task: updatedTask,
+                    due_date: updatedDueDate,
+                    priority: updatedPriority
+                })
+            });
+
+            if (response.ok) {
+                loadTodos();
+            } else {
+                alert('Failed to update todo');
+            }
+        } catch (error) {
+            console.error('Update error:', error);
+        }
     } else {
-        localStorage.removeItem('token');
-        todoContainer.style.display = 'none';
-        authContainer.style.display = 'block';
+        // Enter Edit Mode
+        tr.classList.add('editing');
+        editBtn.textContent = 'Save';
+        editBtn.classList.remove('btn-secondary');
+        editBtn.classList.add('btn-primary');
+
+        taskText.innerHTML = `<input type="text" class="edit-task-input" value="${todo.task}">`;
+        dueDateText.innerHTML = `<input type="date" class="edit-due-date-input" value="${formatDateForInput(todo.due_date)}">`;
+        
+        // Replace the priority badge with a select
+        const currentPriorityHtml = priorityBadge.outerHTML;
+        // We need to find the parent cell to replace content correctly or just replace the badge
+        // The badge is inside a span. Let's replace the span's parent innerHTML for simplicity in this specific structure
+        const priorityCell = priorityBadge.parentElement;
+        priorityCell.innerHTML = `
+            <select class="edit-priority-select">
+                <option value="Low" ${todo.priority === 'Low' ? 'selected' : ''}>Low</option>
+                <option value="Medium" ${todo.priority === 'Medium' ? 'selected' : ''}>Medium</option>
+                <option value="High" ${todo.priority === 'High' ? 'selected' : ''}>High</option>
+            </select>
+        `;
+    }
+}
+
+async function handleDelete(id, token) {
+    if (!confirm('Are you sure you want to delete this task?')) return;
+    
+    try {
+        const response = await fetch(`${TODO_API_URL}/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            loadTodos();
+        } else {
+            alert('Failed to delete todo');
+        }
+    } catch (error) {
+        console.error('Delete error:', error);
+    }
+}
+
+async function handleToggle(id, completed, token) {
+    try {
+        const response = await fetch(`${TODO_API_URL}/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ completed })
+        });
+
+        if (response.ok) {
+            loadTodos();
+        } else {
+            alert('Failed to update status');
+        }
+    } catch (error) {
+        console.error('Toggle error:', error);
     }
 }
 
 // Initial load
-loadTodos();
+if (localStorage.getItem('token')) {
+    showSection('todo-container');
+    loadTodos();
+} else {
+    showSection('auth-container');
+}

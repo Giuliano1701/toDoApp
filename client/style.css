@@ -1,307 +1,294 @@
+:root {
+    --bg-body: #0f172a;
+    --bg-card: #1e293b;
+    --bg-input: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-primary: #3b82f6;
+    --accent-hover: #2563eb;
+    --accent-danger: #ef4444;
+    --accent-success: #22c55e;
+    --border-color: #334155;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #eef2f6; /* Light gray-blue background */
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-primary);
+    line-height: 1.5;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
+}
+
+.app-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    width: 100%;
+}
+
+/* Header */
+.main-header {
+    display: flex;
     justify-content: space-between;
     align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    color: #333;
-    line-height: 1.6;
-    padding: 20px;
-    box-sizing: border-box;
+    margin-bottom: 3rem;
+    padding: 1rem 0;
 }
 
-header {
-    background-color: #4a90e2; /* Blue header */
-    color: white;
-    padding: 15px 20px;
-    width: 100%;
-    max-width: 1000px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-header h1 {
-    margin: 0;
-    font-size: 2em;
-    letter-spacing: 1px;
-}
-
-.container {
-    flex-grow: 1;
+.logo {
     display: flex;
-    justify-content: center;
-    align-items: flex-start; /* Align to top within container */
-    width: 100%;
-    max-width: 1000px;
-    padding: 20px 0;
+    align-items: center;
+    gap: 0.75rem;
 }
 
-#auth-container, #register-container, #todo-container {
-    background-color: #ffffff;
-    width: 100%;
-    max-width: 900px;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-    text-align: center;
-    margin: 20px;
-    box-sizing: border-box;
+.logo-icon {
+    font-size: 1.5rem;
 }
 
-h2 {
-    color: #2c3e50;
-    margin-bottom: 30px; /* More space below heading */
-    font-size: 2em;
-    font-weight: 600;
+.logo h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(to right, var(--accent-primary), #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-label {
-    display: block;
-    text-align: left;
-    margin-bottom: 8px;
+/* Buttons */
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
     font-weight: 500;
-    color: #555;
-    font-size: 0.95em;
-}
-
-input[type="text"],
-input[type="password"],
-input[type="date"],
-select {
-    width: calc(100% - 24px); /* Adjust for padding */
-    padding: 14px 12px; /* More vertical padding */
-    margin-bottom: 20px; /* More space below inputs */
-    border: 1px solid #cdd4da; /* Lighter border */
-    border-radius: 8px;
-    box-sizing: border-box;
-    font-size: 1.05em;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-input[type="text"]:focus,
-input[type="password"]:focus,
-input[type="date"]:focus,
-select:focus {
-    border-color: #4a90e2; /* Blue focus border */
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2); /* Subtle focus glow */
-    outline: none;
-}
-
-button {
-    width: 100%;
-    padding: 15px 20px; /* More padding */
-    background-color: #4a90e2; /* Blue button */
-    color: white;
-    border: none;
-    border-radius: 8px;
     cursor: pointer;
-    font-size: 1.1em;
-    font-weight: 600;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-    margin-bottom: 15px;
-    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    border: none;
+    font-family: inherit;
 }
 
-button:hover {
-    background-color: #357ABD; /* Darker blue on hover */
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+.btn-primary {
+    background-color: var(--accent-primary);
+    color: white;
 }
 
-button:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.btn-primary:hover {
+    background-color: var(--accent-hover);
+    transform: translateY(-1px);
 }
 
-#logout-btn {
-    background-color: #dc3545; /* Red for logout */
+.btn-secondary {
+    background-color: var(--bg-input);
+    color: var(--text-primary);
 }
 
-#logout-btn:hover {
-    background-color: #c82333;
+.btn-secondary:hover {
+    background-color: #475569;
 }
 
-p {
-    margin-top: 25px; /* More space above paragraph */
-    font-size: 0.95em;
-    color: #666;
+.btn-danger {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--accent-danger);
 }
 
-p a {
-    color: #4a90e2;
+.btn-danger:hover {
+    background-color: rgba(239, 68, 68, 0.2);
+}
+
+.full-width {
+    width: 100%;
+}
+
+/* Cards & Layout */
+.card {
+    background-color: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    padding: 2rem;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Auth Forms */
+.auth-card {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.card-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.card-header h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.card-header p {
+    color: var(--text-secondary);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    font-family: inherit;
+}
+
+.form-group input:focus {
+    outline: 2px solid var(--accent-primary);
+    border-color: transparent;
+}
+
+.card-footer {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.card-footer a {
+    color: var(--accent-primary);
     text-decoration: none;
     font-weight: 500;
 }
 
-p a:hover {
-    text-decoration: underline;
+/* Todo Section */
+.todo-controls {
+    margin-bottom: 2rem;
 }
 
-/* Todo specific styles */
-#todo-container #add-todo-btn {
-    margin-top: 20px;
+.input-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
-#todo-list {
+.main-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+}
+
+.date-input, .priority-select {
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+}
+
+/* Table */
+.todo-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 30px;
+}
+
+.todo-table th {
     text-align: left;
-    table-layout: auto; /* Allow columns to adjust width based on content */
+    padding: 1rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-color);
 }
 
-#todo-list td input[type="text"],
-#todo-list td input[type="date"],
-#todo-list td select {
-    width: 100%;
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
-    margin: 0; /* Remove default margins */
-    padding: 8px; /* Adjust padding for better fit within table cells */
+.todo-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
 }
 
-#todo-list thead {
-    background-color: #f0f4f8;
-    border-bottom: 2px solid #e0e6ed;
-}
-
-#todo-list th {
-    padding: 15px 20px;
-    font-weight: 600;
-    color: #555;
-    font-size: 0.95em;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-#todo-list tbody tr {
-    background-color: #ffffff;
-    border-bottom: 1px solid #e0e6ed;
-    transition: background-color 0.3s ease;
-}
-
-#todo-list tbody tr:last-child {
+.todo-table tr:last-child td {
     border-bottom: none;
 }
 
-#todo-list tbody tr:hover {
-    background-color: #f8f9fa;
+.priority-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
 }
 
-#todo-list td {
-    padding: 15px 20px;
-    color: #444;
-    font-size: 1em;
+.priority-High {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--accent-danger);
 }
 
-#todo-list td button {
-    width: auto;
-    padding: 8px 12px;
-    font-size: 0.9em;
-    margin: 0 5px;
-    border-radius: 5px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+.priority-Medium {
+    background-color: rgba(234, 179, 8, 0.1);
+    color: #eab308;
 }
 
-#todo-list td button:hover {
-    transform: translateY(-1px);
+.priority-Low {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: var(--accent-success);
 }
 
-#todo-list td button.edit-btn {
-    background-color: #ffc107; /* Warning yellow */
-    color: #333;
-}
-
-#todo-list td button.edit-btn:hover {
-    background-color: #e0a800;
-}
-
-#todo-list td button.delete-btn {
-    background-color: #dc3545; /* Danger red */
-}
-
-#todo-list td button.delete-btn:hover {
-    background-color: #c82333;
-}
-
-#todo-list .completed {
-    text-decoration: line-through;
-    color: #888;
-    background-color: #f0f0f0;
-}
-
-.add-todo-section {
+.checkbox-wrapper {
     display: flex;
-    flex-wrap: wrap;
-    gap: 15px; /* More gap */
-    margin-bottom: 25px;
-    align-items: flex-end;
+    align-items: center;
 }
 
-.add-todo-section > div {
-    flex: 1;
-    min-width: 180px; /* Slightly larger min-width */
+.todo-completed-checkbox {
+    width: 1.25rem;
+    height: 1.25rem;
+    accent-color: var(--accent-primary);
+    cursor: pointer;
 }
 
-.add-todo-section input,
-.add-todo-section select {
-    width: 100%;
-    margin-bottom: 0; /* Reset margin for flex items */
+.completed .task-text {
+    text-decoration: line-through;
+    color: var(--text-secondary);
 }
 
-.add-todo-section button {
-    flex-basis: 100%;
-    margin-top: 10px;
+.actions-cell {
+    display: flex;
+    gap: 0.5rem;
 }
 
-@media (min-width: 600px) {
-    .add-todo-section button {
-        flex-basis: auto;
-        width: auto;
-        margin-top: 0;
+/* Responsive */
+@media (max-width: 768px) {
+    .app-wrapper {
+        padding: 1rem;
     }
-    .add-todo-section {
-        flex-wrap: nowrap;
+    
+    .input-group {
+        flex-direction: column;
     }
-}
-
-footer {
-    margin-top: 30px;
-    padding: 15px 20px;
-    color: #777;
-    font-size: 0.9em;
-    text-align: center;
-    width: 100%;
-    max-width: 1000px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-footer p {
-    margin: 0;
-    color: #777;
-}
-
-/* General improvements for readability and spaciousness */
-body, html {
-    scroll-behavior: smooth;
-}
-
-a {
-    transition: color 0.2s ease;
-}
-
-/* Add a subtle animation for sections appearing */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-#auth-container, #register-container, #todo-container {
-    animation: fadeIn 0.5s ease-out forwards;
+    
+    .todo-table {
+        display: block;
+        overflow-x: auto;
+    }
 }

@@ -7,11 +7,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {
-    "origins": ["http://localhost:8080", "http://localhost:8081", "https://localhost"],
-    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    "allow_headers": ["Content-Type", "Authorization"]
-}})
+CORS(app) # Allow all origins for simplicity as it is behind Nginx proxy
 
 # Database connection
 def get_db_connection():

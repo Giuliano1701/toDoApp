@@ -21,7 +21,6 @@ const emptyState = document.getElementById('empty-state');
 const searchInput = document.getElementById('search-input');
 const searchResultsInfo = document.getElementById('search-results-info');
 
-// Use relative paths for Nginx proxy
 const AUTH_API_URL = '/api/auth';
 const TODO_API_URL = '/api/todos';
 
@@ -54,7 +53,7 @@ document.getElementById('login-form').addEventListener('submit', (e) => e.preven
 document.getElementById('register-form').addEventListener('submit', (e) => e.preventDefault());
 
 loginBtn.addEventListener('click', async (e) => {
-    e.preventDefault(); // Ensure form doesn't submit
+    e.preventDefault();
     const username = loginUsernameInput.value;
     const password = loginPasswordInput.value;
 
@@ -256,7 +255,7 @@ async function handleEdit(tr, todo, token) {
     const isEditing = tr.classList.contains('editing');
     const taskText = tr.querySelector('.task-text');
     const dueDateText = tr.querySelector('.due-date-text');
-    const priorityBadge = tr.querySelector('.priority-badge'); // We replace the badge parent or content
+    const priorityBadge = tr.querySelector('.priority-badge');
     const editBtn = tr.querySelector('.edit-btn');
 
     if (isEditing) {
@@ -297,10 +296,7 @@ async function handleEdit(tr, todo, token) {
         taskText.innerHTML = `<input type="text" class="edit-task-input" value="${todo.task}">`;
         dueDateText.innerHTML = `<input type="date" class="edit-due-date-input" value="${formatDateForInput(todo.due_date)}">`;
         
-        // Replace the priority badge with a select
         const currentPriorityHtml = priorityBadge.outerHTML;
-        // We need to find the parent cell to replace content correctly or just replace the badge
-        // The badge is inside a span. Let's replace the span's parent innerHTML for simplicity in this specific structure
         const priorityCell = priorityBadge.parentElement;
         priorityCell.innerHTML = `
             <select class="edit-priority-select">
